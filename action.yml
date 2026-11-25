@@ -1,0 +1,31 @@
+name: Check a Casama plugin
+description: Checks an Agent Plugins 1.0 package the way Casama checks it at install.
+author: Casama
+branding:
+  icon: check-circle
+  color: purple
+inputs:
+  path:
+    description: The plugin folder, relative to the repository root.
+    default: "."
+  strict:
+    description: Also fail when Casama would skip or ignore something (a skill, a server, a field).
+    default: "true"
+  version:
+    description: The @casama/plugin-check version to run.
+    default: "0.1.0"
+runs:
+  using: composite
+  steps:
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 24
+    - shell: bash
+      env:
+        PLUGIN_PATH: ${{ inputs.path }}
+        STRICT: ${{ inputs.strict }}
+        CHECK_VERSION: ${{ inputs.version }}
+      run: |
+        args=("$PLUGIN_PATH")
+        if [ "$STRICT" = "true" ]; then args+=(--strict); fi
+        npx -y "@casama/plugin-check@$CHECK_VERSION" "${args[@]}"
